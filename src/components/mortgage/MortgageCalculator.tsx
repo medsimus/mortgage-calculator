@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, useEffect } from 'react';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
@@ -39,7 +40,7 @@ const MortgageCalculator = () => {
     }
   };
 
-  const formatCurrency = (value) => {
+  const formatCurrency = (value: number): string => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -48,16 +49,16 @@ const MortgageCalculator = () => {
     }).format(value);
   };
 
-  const handleLoanAmountChange = (e) => {
+  const handleLoanAmountChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const value = parseFloat(e.target.value.replace(/[^0-9.]/g, ''));
     setLoanAmount(isNaN(value) ? 0 : value);
   };
-
-  const handleInterestRateChange = (value) => {
+  
+  const handleInterestRateChange = (value: number[]): void => {
     setInterestRate(value[0]);
   };
-
-  const handleLoanTermChange = (value) => {
+  
+  const handleLoanTermChange = (value: number[]): void => {
     setLoanTerm(value[0]);
   };
 

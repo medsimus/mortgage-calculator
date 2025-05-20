@@ -1,9 +1,19 @@
+"use client"
+
 import React, { useState, useEffect } from 'react';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
+
+// Define interface for amortization data
+interface AmortizationData {
+  year: number;
+  remainingBalance: number;
+  totalInterestPaid: number;
+  totalPrincipalPaid: number;
+}
 
 const MortgageCalculatorWithChart = () => {
   const [loanAmount, setLoanAmount] = useState(250000);
@@ -12,8 +22,8 @@ const MortgageCalculatorWithChart = () => {
   const [monthlyPayment, setMonthlyPayment] = useState(0);
   const [totalPayment, setTotalPayment] = useState(0);
   const [totalInterest, setTotalInterest] = useState(0);
-  const [amortizationData, setAmortizationData] = useState([]);
-
+  const [amortizationData, setAmortizationData] = useState<AmortizationData[]>([]);
+  
   useEffect(() => {
     calculateMortgage();
   }, [loanAmount, interestRate, loanTerm]);
@@ -43,7 +53,12 @@ const MortgageCalculatorWithChart = () => {
     calculateAmortizationSchedule(loanAmount, monthlyRate, monthly, totalMonths);
   };
 
-  const calculateAmortizationSchedule = (principal, monthlyRate, monthlyPayment, totalMonths) => {
+  const calculateAmortizationSchedule = (
+    principal: number, 
+    monthlyRate: number, 
+    monthlyPayment: number, 
+    totalMonths: number
+  ): void => {
     let balance = principal;
     let totalInterestPaid = 0;
     let totalPrincipalPaid = 0;
@@ -88,25 +103,28 @@ const MortgageCalculatorWithChart = () => {
     setAmortizationData(yearlyData);
   };
 
-  const formatCurrency = (value) => {
+  const formatCurrency = (value: number | string): string => {
+    // Convert to number if it's a string
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(value);
+    }).format(numValue);
   };
-
-  const handleLoanAmountChange = (e) => {
+  
+  const handleLoanAmountChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const value = parseFloat(e.target.value.replace(/[^0-9.]/g, ''));
     setLoanAmount(isNaN(value) ? 0 : value);
   };
-
-  const handleInterestRateChange = (value) => {
+  
+  const handleInterestRateChange = (value: number[]): void => {
     setInterestRate(value[0]);
   };
-
-  const handleLoanTermChange = (value) => {
+  
+  const handleLoanTermChange = (value: number[]): void => {
     setLoanTerm(value[0]);
   };
 
@@ -216,15 +234,12 @@ const MortgageCalculatorWithChart = () => {
                       tickFormatter={(value) => `$${Math.round(value / 1000)}K`}
                       label={{ value: 'Amount ($)', angle: -90, position: 'insideLeft' }} 
                     />
-                    <Tooltip formatter={(value) => formatCurrency(value)} />
-                    <Legend />
-                    <Area 
-                      type="monotone" 
-                      dataKey="remainingBalance" 
-                      stackId="1"
-                      stroke="#8884d8" 
-                      fill="#8884d8" 
-                      name="Remaining Balance"
+                    <Tooltip 
+                      formatter={(value: any) => {
+                        // Ensure value is a number before formatting
+                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                        return formatCurrency(numValue);
+                      }}
                     />
                     <Area 
                       type="monotone" 
@@ -253,14 +268,12 @@ const MortgageCalculatorWithChart = () => {
                       tickFormatter={(value) => `$${Math.round(value / 1000)}K`}
                       label={{ value: 'Amount ($)', angle: -90, position: 'insideLeft' }} 
                     />
-                    <Tooltip formatter={(value) => formatCurrency(value)} />
-                    <Legend />
-                    <Line 
-                      type="monotone" 
-                      dataKey="totalPrincipalPaid" 
-                      stroke="#8884d8" 
-                      name="Principal Paid" 
-                      activeDot={{ r: 8 }} 
+                    <Tooltip 
+                      formatter={(value: any) => {
+                        // Ensure value is a number before formatting
+                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                        return formatCurrency(numValue);
+                      }}
                     />
                     <Line 
                       type="monotone" 
